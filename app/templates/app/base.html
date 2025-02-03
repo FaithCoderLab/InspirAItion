@@ -7,46 +7,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Django Test</title>
+    <title>InspirAItion</title>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
-    <h1>Django Test</h1>
-
-    <p>
-    {% if user.is_authenticated %}
-    <div class="d-flex align-items-center">
-        {% if user.profile.profile_image %}
-            <img src="{{ user.profile.profile_image }}" alt="프로필 이미지"
-                class="rounded-circle me=2" style="width: 40px; height: 40px; object-fit: cover;">
-        {% endif %}
-        {% if user.profile %}
-            {{ user.profile.nickname }}님 환영합니다
-        {% else %}
-        {{ user.username }}님 환영합니다
-        {% endif %}
-        <a href="{% url 'profile_update' %}" class="btn btn-sm btn-outline-secondary ms-2">프로필 수정</a>
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">로그아웃</button>
-        </form>
-    </div>
-
-    {% else %}
-    <a href="{% url 'login' %}">로그인</a>
-    {% endif %}
-    </p>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'artwork:index' %}">InspirAItion</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'artwork:list' %}">갤러리</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'artwork:demo_generate' %}">작품 생성</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            {% if user.profile.profile_image %}
+                            <img src="{{ user.profile.profile_image }}" alt="프로필"
+                                class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% endif %}
+                            {{ user.profile.nickname|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'profile_update' %}">프로필 수정</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link p-0">로그아웃</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                        <a class="nav-link" href="{% url 'login' %}">로그인</a>
+                        <a class="nav-link" href="{% url 'signup' %}">회원가입</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}{% endblock %}
     </div>
 
-    <hr>
-    <footer>
-        <p>Footer</p>
+    <footer class="footer mt-5 py-3 bg-light">
+        <div class="container text-center">
+            <p class="text-muted">©️ 2025 InspirAItion. AI로 만드는 새로운 예술의 세계</p>
+        </div>
     </footer>
 
     <script src="{% static 'js/script.js' %}"></script>

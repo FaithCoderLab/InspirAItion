@@ -1,0 +1,54 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>AI 생성 작품 갤러리</h2>
+        <div>
+            <a href="{% url 'artwork:demo_generate' %}" class="btn btn-primary">새 작품 생성</a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for artwork in artworks %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-img-top" style="height: 250px; overflow: hidden;">
+                    {% if artwork.image_url %}
+                    <img src="{{ artwork.image_url }}"
+                        alt="{{ artwork.title }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
+                            <span class="text-muted">이미지 없음</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ artwork.title }}</h5>
+                    <p class="card-text" style="height: 4.5em; overflow: hidden;">{{ artwork.description|default:""|truncatewords:20 }}</p>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        {% if not artwork.is_public %}
+                        <span class="badge bg-warning">비공개</span>
+                        {% endif %}
+                        {{ artwork.created_at|date:"Y-m-d H:i" }}
+                    </small>
+                    <a href="{% url 'artwork:detail' artwork.pk %}" class="btn btn-sm btn-outline-primary float-end">자세히</a>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                아직 생성된 작품이 없습니다.
+                <a href="{% url 'artwork:demo_generate' %}" class="alert-link">새 작품을 생성</a>해보세요!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

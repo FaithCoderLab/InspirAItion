@@ -1,0 +1,46 @@
+{% extends "app/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container">
+    <h2>작품 저장</h2>
+
+    {% if generated_image %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">생성된 이미지</h5>
+            <img src="{{ generated_image.url }}" alt="Generated Image" class="img-fluid mb-3">
+            <dl class="row">
+                <dt class="col-sm-3">Style</dt>
+                <dd class="col-sm-9">{{ generated_image.style|title }}</dd>
+
+                <dt class="col-sm-3">Subject</dt>
+                <dd class="col-sm-9">{{ generated_image.subject|title }}</dd>
+
+                <dt class="col-sm-3">Settings</dt>
+                <dd class="col-sm-9">
+                    <small class="text-muted">
+                        Steps: {{ generated_image.metadata.steps }},
+                        CFG Scale: {{ generated_image.metadata.cfg_scale }},
+                        Seed: {{ generated_image.metadata.seed }}
+                    </small>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">저장</button>
+                    <a href="{% url 'artwork:list' %}" class="btn btn-secondary">취소</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "app/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'artwork:list' %}">갤러리</a></li>
+            <li class="breadcrumb-item active">작품 상세</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <img src="{{ artwork.image_url }}" class="card-img-top" alt="{{ artwork.title }}">
+                <div class="card-body">
+                    <h1 class="card-title">{{ artwork.title }}</h1>
+                    <p class="text-muted">
+                        작성자: {{ artwork.user.profile.nickname|default:artwork.user.username }} |
+                        작성일: {{ artwork.created_at|date:"Y-m-d H:i" }}
+                        {% if not artwork.is_public %}
+                            <span class="badge bg-warning">비공개</span>
+                        {% endif %}
+                    </p>
+                    <div class="card-text">{{ artwork.description|linebreaks }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">AI 생성 정보</h5>
+                </div>
+                <div class="card-body">
+                    <dl>
+                        <dt>프롬프트</dt>
+                        <dd>{{ artwork.prompt }}</dd>
+
+                        {% if artwork.ai_metadata %}
+                        <dt>생성 설정</dt>
+                        <dd>
+                            <small class="text-muted">
+                                {% with metadata=artwork.ai_metadata %}
+                                {% if metadata.model %}모델: {{ metadata.model }}<br>{% endif %}
+                                {% if metadata.style %}스타일: {{ metadata.style }}<br>{% endif %}
+                                {% if metadata.steps %}Steps: {{ metadata.steps }}<br>{% endif %}
+                                {% if metadata.cfg_scale %}CFG Scale: {{ metadata.cfg_scale }}<br>{% endif %}
+                                {% if metadata.seed %}Seed: {{ metadata.seed }}<br>{% endif %}
+                                {% endwith %}
+                            </small>
+                        </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            {% if user == artwork.user %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">작품 관리</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'artwork:edit' artwork.pk %}" class="btn btn-primary">수정하기</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            삭제하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user == artwork.user %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">작품 삭제</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                정말로 이 작품을 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <form action="{% url 'artwork:delete' artwork.pk %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

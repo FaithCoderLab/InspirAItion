@@ -1,0 +1,99 @@
+{% extends "app/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container">
+    <h2>AI 이미지 생성 (데모)</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if not generated_image %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="generate" value="1">
+                <div class="mb-3">
+                    <label class="form-label">스타일 선택</label>
+                    <select name="style" class="form-select">
+                        {% for style in styles %}
+                        <option value="{{ style }}">{{ style|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">주제 선택</label>
+                    <select name="subject" class="form-select">
+                        {% for subject in subjects %}
+                        <option value="{{ subject }}">{{ subject|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">프롬프트</label>
+                    <select name="prompt" class="form-select">
+                        {% for prompt in sample_prompts %}
+                        <option value="{{ prompt }}">{{ prompt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">이미지 생성</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">생성된 이미지</h5>
+                    <img src="{{ generated_image.url }}" alt="Generated Image" class="img-fluid mb-3">
+                    <dl class="row">
+                        <dt class="col-sm-3">Style</dt>
+                        <dd class="col-sm-9">{{ generated_image.style|title }}</dd>
+                        
+                        <dt class="col-sm-3">Subject</dt>
+                        <dd class="col-sm-9">{{ generated_image.subject|title }}</dd>
+                        
+                        <dt class="col-sm-3">Settings</dt>
+                        <dd class="col-sm-9">
+                            <small class="text-muted">
+                                Steps: {{ generated_image.metadata.steps }},
+                                CFG Scale: {{ generated_image.metadata.cfg_scale }},
+                                Seed: {{ generated_image.metadata.seed }}
+                            </small>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="generate" value="1" class="btn btn-secondary">다시 생성</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">작품 저장</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <button type="submit" class="btn btn-primary">저장</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

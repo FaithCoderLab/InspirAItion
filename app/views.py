@@ -18,6 +18,7 @@ def post_detail(request: HttpRequest, pk: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=pk)
     return render(request, "app/post_detail.html", {"post": post})
 
+
 @login_required
 def create_post(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
@@ -49,6 +50,7 @@ def create_post(request: HttpRequest) -> HttpResponse:
     else:
         form = PostForm()
     return render(request, "app/create_post.html", {"form": form})
+
 
 @login_required
 def edit_post(request: HttpRequest, pk: int) -> HttpResponse:
@@ -82,6 +84,7 @@ def edit_post(request: HttpRequest, pk: int) -> HttpResponse:
     else:
         form = PostForm(instance=post)
     return render(request, "app/edit_post.html", {"form": form, "post": post})
+
 
 @login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
